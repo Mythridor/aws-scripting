@@ -24,14 +24,14 @@ def create_instance():
             'Groups': ['sg-a73667df']
         }]
     )
-    #
-    # while instance.state == "pending":
-    #     print(instance, instance.state)
-    #     time.sleep(5)
-    #     instance.update()
-    #
-    #     instance.add_tag("Name", "test")
-    # print("done", instance)
+    while instance[len(instance) - 1].state == "pending":
+        print(instance, instance.state)
+        time.sleep(5)
+        instance.update()
+
+        instance.add_tag("Name", "test")
+
+    print("done", instance)
 
 
 def terminate_all_ec2():
@@ -45,4 +45,4 @@ def stop_all_ec2():
     for instance in ec2.instances.all():
         instance.stop()
 
-create_instance()
+[print(x) for x in list_all_ec2()]
