@@ -25,13 +25,13 @@ def create_instance():
         }]
     )
     while instance[len(instance) - 1].state == "pending":
-        print(instance, instance.state)
+        print(instance[len(instance) - 1], instance[len(instance) - 1].state)
         time.sleep(5)
-        instance.update()
+        instance[len(instance) - 1].update()
 
-        instance.add_tag("Name", "test")
+        instance[len(instance) - 1].add_tag("Name", "test")
 
-    print("done", instance)
+    print("done", instance[len(instance) - 1])
 
 
 def terminate_all_ec2():
@@ -45,4 +45,4 @@ def stop_all_ec2():
     for instance in ec2.instances.all():
         instance.stop()
 
-[print(x) for x in list_all_ec2()]
+create_instance()
