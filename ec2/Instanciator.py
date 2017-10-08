@@ -4,8 +4,8 @@ from boto3 import Session
 class ec2Instanciator:
     instance_id = 0
 
-    def __init__(self, ami, instance_type, key_name, subnet_id, groups=list()):
-        self.ec2 = Session(profile_name="gekko1").resource('ec2')
+    def __init__(self, ami, instance_type, key_name, subnet_id, profile_name="", groups=list()):
+        self.ec2 = Session(profile_name=profile_name).resource('ec2')
         self.ami = ami
         self.instance_type = instance_type
         self.key_name = key_name
