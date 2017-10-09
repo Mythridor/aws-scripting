@@ -1,7 +1,8 @@
-#! /usr/local/bin/Python3.5
+#! /usr/local/bin/python3.5
+import time
+
 import boto3
 import requests
-import time
 
 
 class ApiRequester:
@@ -21,9 +22,9 @@ ip_adress = request['ip']
 
 print(ip_adress)
 
-ec2 = boto3.Session(profile_name="gekko2").client('ec2')
+ec2 = boto3.Session(profile_name="gekko2", region_name='eu-west-1').client('ec2')
 
-response = ec2.authorize_security_group_ingress(
+ec2.authorize_security_group_ingress(
     GroupId='sg-b95040c1',
     IpPermissions=[
         {
@@ -42,19 +43,9 @@ response = ec2.authorize_security_group_ingress(
 )
 
 ec2.revoke_security_group_ingress(
+    CidrIp='0.0.0.0/0',
     GroupId='sg-b95040c1',
-    IpPermissions=[
-        {
-            'FromPort': 22,
-            'IpProtocol': 'tcp',
-            'IpRanges': [
-                {
-                    'CidrIp': '0.0.0.0/0',
-                    'Description': 'Test'
-                }
-            ],
-
-            'ToPort': 22,
-        },
-    ]
+    IpProtocol='tcp',
+    FromPort=22,
+    ToPort=22
 )
