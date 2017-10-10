@@ -1,7 +1,8 @@
 #! /usr/local/bin/Python3.5
+import time
+
 import boto3
 import requests
-import time
 
 
 class ApiRequester:
@@ -23,7 +24,7 @@ print(ip_adress)
 
 ec2 = boto3.Session(profile_name="gekko2").client('ec2')
 
-response = ec2.authorize_security_group_ingress(
+ec2.authorize_security_group_ingress(
     GroupId='sg-b95040c1',
     IpPermissions=[
         {
