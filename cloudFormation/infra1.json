@@ -435,35 +435,17 @@
         "InstanceType": "t2.micro"
       }
     },
-    "ProdServerGroup": {
-      "Type": "AWS::AutoScaling::AutoScalingGroup",
+    "TargetGroup": {
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
       "Properties": {
-        "AvailabilityZones": [
-          "eu-west-1a",
-          "eu-west-1b"
-        ],
-        "VPCZoneIdentifier": [
-          {
-            "Ref": "bensn1"
-          },
-          {
-            "Ref": "bensn3"
-          }
-        ],
-        "LaunchConfigurationName": {
-          "Ref": "LaunchConfig"
-        },
-        "MinSize": "2",
-        "MaxSize": "2",
-        "MetricsCollection": [
-          {
-            "Granularity": "1Minute",
-            "Metrics": [
-              "GroupMinSize",
-              "GroupMaxSize"
-            ]
-          }
-        ]
+        "HealthCheckIntervalSeconds": 60,
+        "UnhealthyThresholdCount": 10,
+        "HealthCheckPath": "/",
+        "Port": 80,
+        "Protocol": "HTTP",
+        "VpcId": {
+          "Ref": "benvpc1"
+        }
       }
     },
     "LoadBalancer": {
@@ -484,17 +466,58 @@
         ]
       }
     },
-    "TargetGroup": {
-      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    "Listener": {
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
       "Properties": {
-        "HealthCheckIntervalSeconds": 60,
-        "UnhealthyThresholdCount": 10,
-        "HealthCheckPath": "/",
-        "Port": 80,
-        "Protocol": "HTTP",
-        "VpcId": {
-          "Ref": "benvpc1"
-        }
+        "DefaultActions": [
+          {
+            "Type": "forward",
+            "TargetGroupArn": {
+              "Ref": "TargetGroup"
+            }
+          }
+        ],
+        "LoadBalancerArn": {
+          "Ref": "LoadBalancer"
+        },
+        "Port": "80",
+        "Protocol": "HTTP"
+      }
+    },
+    "ProdServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          "eu-west-1a",
+          "eu-west-1b"
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "bensn1"
+          },
+          {
+            "Ref": "bensn3"
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "LaunchConfig"
+        },
+        "MinSize": "2",
+        "MaxSize": "2",
+        "TargetGroupARNs": [
+          {
+            "Ref": "TargetGroup"
+          }
+        ],
+        "MetricsCollection": [
+          {
+            "Granularity": "1Minute",
+            "Metrics": [
+              "GroupMinSize",
+              "GroupMaxSize"
+            ]
+          }
+        ]
       }
     }
   }
