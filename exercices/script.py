@@ -21,12 +21,12 @@ def instanceId(url):
 
 writedb = pymysql.connect(host="benmysqlinstance.c7p9s8bjlzfz.eu-west-1.rds.amazonaws.com",
                           user="Mythridor",
-                          passwd="3141592653589Rr",
+                          passwd="***************",
                           db="test")
 
 readdb = pymysql.connect(host="benmysqlinstancereplica.c7p9s8bjlzfz.eu-west-1.rds.amazonaws.com",
                          user="Mythridor",
-                         passwd="3141592653589Rr",
+                         passwd="*****************",
                          db="test")
 
 try:
