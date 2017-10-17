@@ -1,0 +1,18 @@
+#!/bin/bash
+sudo apt-get update
+sudo apt-get -y install apache2 libapache2-mod-python wget dbus python3-pip
+pip3 install pycgi
+pip3 install pymysql
+sudo ln -s /etc/apache2/mods-available/cgi.load /etc/apache2/mods-enabled/
+sudo ln -s /etc/apache2/mods-available/cgid.load /etc/apache2/mods-enabled/
+sudo ln -s /etc/apache2/mods-available/cgid.conf /etc/apache2/mods-enabled/
+sudo echo \<Directory /var/www/html\> >> /etc/apache2/sites-available/000-default.conf
+sudo echo                Options +ExecCGI >> /etc/apache2/sites-available/000-default.conf
+sudo echo                AddHandler cgi-script .py >> /etc/apache2/sites-available/000-default.conf
+sudo echo                Order allow,deny >> /etc/apache2/sites-available/000-default.conf
+sudo echo                Allow from all >> /etc/apache2/sites-available/000-default.conf
+sudo echo        \</Directory\> >> /etc/apache2/sites-available/000-default.conf
+wget https://s3-eu-west-1.amazonaws.com/testpythonbucketv1/script.py
+sudo cp script.py /var/www/html/
+sudo chmod +x /var/www/html/script.py
+sudo /etc/init.d/apache2 restart
