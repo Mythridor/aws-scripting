@@ -1,0 +1,501 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates a VPC that and then creates a peering connection with an existing VPC",
+  "Parameters": {
+    "KeyName": {
+      "Description": "EC2 KeyPair to enable access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription": "Must be the name of an existing EC2 KeyPair."
+    }
+  },
+  "Resources": {
+    "benvpc1": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/24",
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "ben-vpc-1"
+          }
+        ]
+      }
+    },
+    "benvpc2": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.1.0/24",
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "ben-vpc-2"
+          }
+        ]
+      }
+    },
+    "benvpcp1": {
+      "Type": "AWS::EC2::VPCPeeringConnection",
+      "Properties": {
+        "VpcId": {
+          "Ref": "benvpc1"
+        },
+        "PeerVpcId": {
+          "Ref": "benvpc2"
+        }
+      }
+    },
+    "bensn21": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "MapPublicIpOnLaunch": "true",
+        "VpcId": {
+          "Ref": "benvpc2"
+        },
+        "CidrBlock": "10.0.1.0/24",
+        "AvailabilityZone": "eu-west-1a",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bensn21"
+          }
+        ]
+      }
+    },
+    "bensn1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "MapPublicIpOnLaunch": "true",
+        "VpcId": {
+          "Ref": "benvpc1"
+        },
+        "CidrBlock": "10.0.0.0/26",
+        "AvailabilityZone": "eu-west-1a",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bensn1"
+          }
+        ]
+      }
+    },
+    "bensn2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "benvpc1"
+        },
+        "CidrBlock": "10.0.0.64/26",
+        "AvailabilityZone": "eu-west-1a",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bensn2"
+          }
+        ]
+      }
+    },
+    "bensn3": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "MapPublicIpOnLaunch": "true",
+        "VpcId": {
+          "Ref": "benvpc1"
+        },
+        "CidrBlock": "10.0.0.128/26",
+        "AvailabilityZone": "eu-west-1b",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bensn3"
+          }
+        ]
+      }
+    },
+    "bensn4": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "benvpc1"
+        },
+        "CidrBlock": "10.0.0.192/26",
+        "AvailabilityZone": "eu-west-1b",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bensn4"
+          }
+        ]
+      }
+    },
+    "benig1": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "benig1"
+          }
+        ]
+      }
+    },
+    "AttachGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "benvpc1"
+        },
+        "InternetGatewayId": {
+          "Ref": "benig1"
+        }
+      }
+    },
+    "benig2": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "benig2"
+          }
+        ]
+      }
+    },
+    "AttachGateway2": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "benvpc2"
+        },
+        "InternetGatewayId": {
+          "Ref": "benig2"
+        }
+      }
+    },
+    "benrt1": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "benvpc1"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "benrt1"
+          }
+        ]
+      }
+    },
+    "benr11": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "benrt1"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "benig1"
+        }
+      }
+    },
+    "benr12": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "benrt1"
+        },
+        "DestinationCidrBlock": "10.0.1.0/24",
+        "VpcPeeringConnectionId": {
+          "Ref": "benvpcp1"
+        }
+      }
+    },
+    "benrt2": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "benvpc1"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "benrt2"
+          }
+        ]
+      }
+    },
+    "benrt3": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "benvpc2"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "benrt3"
+          }
+        ]
+      }
+    },
+    "mySubnetRouteTableAssociation1": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "bensn1"
+        },
+        "RouteTableId": {
+          "Ref": "benrt1"
+        }
+      }
+    },
+    "mySubnetRouteTableAssociation3": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "bensn3"
+        },
+        "RouteTableId": {
+          "Ref": "benrt1"
+        }
+      }
+    },
+    "SubnetRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "bensn21"
+        },
+        "RouteTableId": {
+          "Ref": "benrt3"
+        }
+      }
+    },
+    "mySubnetRouteTableAssociation2": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "bensn2"
+        },
+        "RouteTableId": {
+          "Ref": "benrt2"
+        }
+      }
+    },
+    "SubnetRouteTableAssociation4": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "bensn4"
+        },
+        "RouteTableId": {
+          "Ref": "benrt2"
+        }
+      }
+    },
+    "benr31": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "benrt3"
+        },
+        "DestinationCidrBlock": "10.0.0.0/24",
+        "VpcPeeringConnectionId": {
+          "Ref": "benvpcp1"
+        }
+      }
+    },
+    "benr32": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "benrt3"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "benig2"
+        }
+      }
+    },
+    "bensg1": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow SSH to client host",
+        "VpcId": {
+          "Ref": "benvpc2"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "65535",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bensg1"
+          }
+        ]
+      }
+    },
+    "bensg2": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow SSH to client host",
+        "VpcId": {
+          "Ref": "benvpc1"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "10.0.1.0/24"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3306",
+            "ToPort": "3306",
+            "CidrIp": "10.0.0.0/23"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "65535",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bensg2"
+          }
+        ]
+      }
+    },
+    "beni1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": "ami-c510c2bc",
+        "InstanceType": "t2.micro",
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "bensg1"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "bensn21"
+            }
+          }
+        ]
+      }
+    },
+    "LaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Properties": {
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "ImageId": "ami-c510c2bc",
+        "SecurityGroups": [
+          {
+            "Ref": "bensg2"
+          }
+        ],
+        "InstanceType": "t2.micro"
+      }
+    },
+    "ProdServerGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "AvailabilityZones": [
+          "eu-west-1a",
+          "eu-west-1b"
+        ],
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "bensn1"
+          },
+          {
+            "Ref": "bensn3"
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "LaunchConfig"
+        },
+        "MinSize": "2",
+        "MaxSize": "2",
+        "MetricsCollection": [
+          {
+            "Granularity": "1Minute",
+            "Metrics": [
+              "GroupMinSize",
+              "GroupMaxSize"
+            ]
+          }
+        ]
+      }
+    },
+    "LoadBalancer": {
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties": {
+        "Subnets": [
+          {
+            "Ref": "bensn1"
+          },
+          {
+            "Ref": "bensn3"
+          }
+        ],
+        "SecurityGroups": [
+          {
+            "Ref": "bensg2"
+          }
+        ]
+      }
+    },
+    "TargetGroup": {
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "Properties": {
+        "HealthCheckIntervalSeconds": 60,
+        "UnhealthyThresholdCount": 10,
+        "HealthCheckPath": "/",
+        "Port": 80,
+        "Protocol": "HTTP",
+        "VpcId": {
+          "Ref": "benvpc1"
+        }
+      }
+    }
+  }
+}
