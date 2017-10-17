@@ -18,16 +18,19 @@ def instanceId(url):
     instance_id = requests.get(url)
     return instance_id.content
 
-try:
-    writedb = pymysql.connect(host="benmysqlinstance.c7p9s8bjlzfz.eu-west-1.rds.amazonaws.com",
-                              user="Mythridor",
-                              passwd="3141592653589Rr",
-                              db="test")
 
-    readdb = pymysql.connect(host="benmysqlinstancereplica.c7p9s8bjlzfz.eu-west-1.rds.amazonaws.com",
-                             user="Mythridor",
-                             passwd="3141592653589Rr",
-                             db="test")
+writedb = pymysql.connect(host="benmysqlinstance.c7p9s8bjlzfz.eu-west-1.rds.amazonaws.com",
+                          user="Mythridor",
+                          passwd="3141592653589Rr",
+                          db="test")
+
+readdb = pymysql.connect(host="benmysqlinstancereplica.c7p9s8bjlzfz.eu-west-1.rds.amazonaws.com",
+                         user="Mythridor",
+                         passwd="3141592653589Rr",
+                         db="test")
+
+try:
+
     cur = readdb.cursor()
     writecur = writedb.cursor()
     ctr = 0
