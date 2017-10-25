@@ -1,0 +1,8 @@
+# /boot/config.txt
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=on
+core_freq=250
+sdram_freq=450
+over_voltage=2
+dtoverlay=hifiberry-dac
