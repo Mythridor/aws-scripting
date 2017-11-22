@@ -1,6 +1,10 @@
 import requests
 
 
+# -------------------------------------------------------- #
+#                   Response Builder                       #
+# -------------------------------------------------------- #
+
 def build_response(session_attributes, speechlet_response):
     return {
         'version': '1.0',
@@ -30,14 +34,19 @@ def build_speechlet_response(title, output, reprompt_text, should_end_session):
     }
 
 
-def handle_session_end_request():
-    card_title = "Session Ended"
-    speech_output = "Thank you for using our first test Alexa's skill!" \
-                    "Have a nice day! "
-    # Setting this to true ends the session and exits the skill.
-    should_end_session = True
-    return build_response({}, build_speechlet_response(
-        card_title, speech_output, None, should_end_session))
+# -------------------------------------------------------- #
+#                     Business process                     #
+# -------------------------------------------------------- #
+def countAstronauts():
+    session_attributes = {}
+    card_title = "CountAstronauts"
+    number = requests.get("http://api.open-notify.org/astros.json").json()
+    print(number['number'])
+    speech_output = "There is currently " + str(number['number']) + " people in the ISS."
+    reprompt_text = "How can I help you now?"
+    should_end_session = False
+    return build_response(session_attributes, build_speechlet_response(
+        card_title, speech_output, reprompt_text, should_end_session))
 
 
 def get_welcome_response():
@@ -50,32 +59,34 @@ def get_welcome_response():
         card_title, speech_output, reprompt_text, should_end_session))
 
 
+# -------------------------------------------------------- #
+#                    Session handler                       #
+# -------------------------------------------------------- #
+def handle_session_end_request():
+    card_title = "Session Ended"
+    speech_output = "Thank you for using our first test Alexa's skill!" \
+                    "Have a nice day! "
+    # Setting this to true ends the session and exits the skill.
+    should_end_session = True
+    return build_response({}, build_speechlet_response(
+        card_title, speech_output, None, should_end_session))
+
+
 def on_session_started(session_started_request, session):
     print("on_session_started requestId=" + session_started_request['requestId']
           + ", sessionId=" + session['sessionId'])
 
 
-def on_launch(launch_request, session):
-    """ Called when the user launches the skill without specifying what they
-    want
-    """
+def on_session_ended(session_ended_request, session):
+    print("on_session_ended requestId=" + session_ended_request['requestId'] +
+          ", sessionId=" + session['sessionId'])
 
+
+def on_launch(launch_request, session):
     print("on_launch requestId=" + launch_request['requestId'] +
           ", sessionId=" + session['sessionId'])
     # Dispatch to your skill's launch
     return get_welcome_response()
-
-
-def countAstronauts():
-    session_attributes = {}
-    card_title = "CountAstronauts"
-    number = requests.get("http://api.open-notify.org/astros.json").json()
-    print(number['number'])
-    speech_output = "There is currently " + str(number['number']) + " people in the ISS"
-    reprompt_text = "How can I help you now?"
-    should_end_session = False
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, reprompt_text, should_end_session))
 
 
 def on_intent(intent_request, session):
@@ -96,15 +107,6 @@ def on_intent(intent_request, session):
         return handle_session_end_request()
     else:
         raise ValueError("Invalid intent")
-
-
-def on_session_ended(session_ended_request, session):
-    """ Called when the user ends the session.
-
-    Is not called when the skill returns should_end_session=true
-    """
-    print("on_session_ended requestId=" + session_ended_request['requestId'] +
-          ", sessionId=" + session['sessionId'])
 
 
 def lambda_handler(event, context):
